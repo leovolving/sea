@@ -87,9 +87,11 @@ export default function Home() {
                 <td>{advocate.city}</td>
                 <td>{advocate.degree}</td>
                 <td>
-                  {advocate.specialties.map((s) => (
-                    <div key={`specialty-${s}`}>{s}</div>
-                  ))}
+                  <ul className="list-disc pl-16">
+                    {advocate.specialties.map((s) => (
+                      <li key={`specialty-${s}`}>{s}</li>
+                    ))}
+                  </ul>
                 </td>
                 <td>{advocate.yearsOfExperience}</td>
                 <td>
