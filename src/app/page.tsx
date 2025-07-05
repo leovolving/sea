@@ -39,9 +39,12 @@ export default function Home() {
   };
 
   const resetSearch = () => {
-    console.log(advocates);
-    setFilteredAdvocates(advocates);
-    setSearchTerm("");
+    // TODO: use a confirmation modal that matches the design system
+    // this causes DevTools to throw a warning. It can be safely ignored.
+    if (confirm("Are you sure you want to reset your search?")) {
+      setFilteredAdvocates(advocates);
+      setSearchTerm("");
+    }
   };
 
   return (
