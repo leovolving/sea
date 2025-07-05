@@ -92,7 +92,11 @@ export default function Home() {
                   ))}
                 </td>
                 <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
+                <td>
+                  {advocate.phoneNumber
+                    .toString(10)
+                    .replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}
+                </td>
               </tr>
             );
           })}
