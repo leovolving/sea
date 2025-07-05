@@ -1,57 +1,14 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent } from "react";
 
-import { Advocate } from "./types";
 import { Loading } from "./components/loading";
 
+import { useAdvocateSearchData } from "./hooks/useAdvocateSearchData";
+
 export default function Home() {
-  const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [page] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const defaultParams = {
-    offset: 10,
-    page,
-    search: searchTerm,
-  };
-
-  const getParamsWithOverrides = (overrides: {}) => ({
-    ...defaultParams,
-    ...overrides,
-  });
-
-  const fetchData = (params = defaultParams) => {
-    const { offset, page: pageParam, search } = params;
-    setIsLoading(true);
-
-    fetch(
-      `/api/advocates?search=${search}&page=${pageParam}&offset=${offset}`
-    ).then((response) => {
-      response
-        .json()
-        .then((jsonResponse) => {
-          setFilteredAdvocates(jsonResponse.data);
-        })
-        // TODO: error handling
-        .finally(() => setIsLoading(false));
-    });
-  };
-
-  useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const updateSearch = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm);
-    const params = getParamsWithOverrides({
-      page: 1,
-      search: newSearchTerm,
-    });
-    fetchData(params);
-  };
+  const { filteredAdvocates, isLoading, searchTerm, updateSearch } =
+    useAdvocateSearchData();
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     updateSearch(e.target.value);
