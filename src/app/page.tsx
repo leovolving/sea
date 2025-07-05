@@ -6,51 +6,62 @@ import { Advocate } from "./types";
 import { Loading } from "./components/loading";
 
 export default function Home() {
-  const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
+  const defaultParams = {
+    offset: 10,
+    page,
+    search: searchTerm,
+  };
+
+  const getParamsWithOverrides = (overrides: {}) => ({
+    ...defaultParams,
+    ...overrides,
+  });
+
+  const fetchData = (params = defaultParams) => {
+    const { offset, page: pageParam, search } = params;
     setIsLoading(true);
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
+
+    fetch(
+      `/api/advocates?search=${search}&page=${pageParam}&offset=${offset}`
+    ).then((response) => {
       response
         .json()
         .then((jsonResponse) => {
-          setAdvocates(jsonResponse.data);
           setFilteredAdvocates(jsonResponse.data);
         })
         // TODO: error handling
         .finally(() => setIsLoading(false));
     });
+  };
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newSearchTermInput = e.target.value;
-    setSearchTerm(newSearchTermInput);
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(newSearchTermInput) ||
-        advocate.lastName.includes(newSearchTermInput) ||
-        advocate.city.includes(newSearchTermInput) ||
-        advocate.degree.includes(newSearchTermInput) ||
-        advocate.specialties.includes(newSearchTermInput) ||
-        advocate.yearsOfExperience === +newSearchTermInput
-      );
+  const updateSearch = (newSearchTerm: string) => {
+    setSearchTerm(newSearchTerm);
+    const params = getParamsWithOverrides({
+      page: 1,
+      search: newSearchTerm,
     });
+    fetchData(params);
+  };
 
-    setFilteredAdvocates(filteredAdvocates);
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateSearch(e.target.value);
   };
 
   const resetSearch = () => {
     // TODO: use a confirmation modal that matches the design system
     // this causes DevTools to throw a warning. It can be safely ignored.
     if (confirm("Are you sure you want to reset your search?")) {
-      setFilteredAdvocates(advocates);
-      setSearchTerm("");
+      updateSearch("");
     }
   };
 
