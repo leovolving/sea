@@ -38,9 +38,10 @@ export default function Home() {
     setFilteredAdvocates(filteredAdvocates);
   };
 
-  const onClick = () => {
+  const resetSearch = () => {
     console.log(advocates);
     setFilteredAdvocates(advocates);
+    setSearchTerm("");
   };
 
   return (
@@ -58,7 +59,7 @@ export default function Home() {
           value={searchTerm}
           onChange={onChange}
         />
-        <button onClick={onClick}>Reset Search</button>
+        <button onClick={resetSearch}>Reset Search</button>
       </div>
       <br />
       <br />
