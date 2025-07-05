@@ -66,8 +66,8 @@ export default function Home() {
       </div>
       <br />
       <br />
-      <table>
-        <thead>
+      <table className="w-full table-auto">
+        <thead className="sticky top-0 bg-white z-10 shadow-md">
           <tr>
             <th>Name</th>
             <th>City</th>
@@ -80,7 +80,7 @@ export default function Home() {
         <tbody>
           {filteredAdvocates.map((advocate) => {
             return (
-              <tr key={`advocate-${advocate.id}`}>
+              <tr key={`advocate-${advocate.id}`} className="odd:bg-gray-100">
                 <td>
                   {advocate.firstName} {advocate.lastName}
                 </td>
