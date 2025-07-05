@@ -29,7 +29,7 @@ export default function Home() {
         advocate.city.includes(newSearchTermInput) ||
         advocate.degree.includes(newSearchTermInput) ||
         advocate.specialties.includes(newSearchTermInput) ||
-        advocate.yearsOfExperience.includes(newSearchTermInput)
+        advocate.yearsOfExperience === +newSearchTermInput
       );
     });
 
