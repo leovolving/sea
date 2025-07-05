@@ -1,56 +1,24 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent } from "react";
 
-import { Advocate } from "./types";
 import { Loading } from "./components/loading";
 
-export default function Home() {
-  const [advocates, setAdvocates] = useState<Advocate[]>([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+import { useAdvocateSearchData } from "./hooks/useAdvocateSearchData";
 
-  useEffect(() => {
-    setIsLoading(true);
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response
-        .json()
-        .then((jsonResponse) => {
-          setAdvocates(jsonResponse.data);
-          setFilteredAdvocates(jsonResponse.data);
-        })
-        // TODO: error handling
-        .finally(() => setIsLoading(false));
-    });
-  }, []);
+export default function Home() {
+  const { filteredAdvocates, isLoading, searchTerm, updateSearch } =
+    useAdvocateSearchData();
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newSearchTermInput = e.target.value;
-    setSearchTerm(newSearchTermInput);
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(newSearchTermInput) ||
-        advocate.lastName.includes(newSearchTermInput) ||
-        advocate.city.includes(newSearchTermInput) ||
-        advocate.degree.includes(newSearchTermInput) ||
-        advocate.specialties.includes(newSearchTermInput) ||
-        advocate.yearsOfExperience === +newSearchTermInput
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
+    updateSearch(e.target.value);
   };
 
   const resetSearch = () => {
     // TODO: use a confirmation modal that matches the design system
     // this causes DevTools to throw a warning. It can be safely ignored.
     if (confirm("Are you sure you want to reset your search?")) {
-      setFilteredAdvocates(advocates);
-      setSearchTerm("");
+      updateSearch("");
     }
   };
 
