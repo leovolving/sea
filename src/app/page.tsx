@@ -65,8 +65,7 @@ export default function Home() {
       <table>
         <thead>
           <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
+            <th>Name</th>
             <th>City</th>
             <th>Degree</th>
             <th>Specialties</th>
@@ -78,8 +77,9 @@ export default function Home() {
           {filteredAdvocates.map((advocate) => {
             return (
               <tr key={`advocate-${advocate.id}`}>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
+                <td>
+                  {advocate.firstName} {advocate.lastName}
+                </td>
                 <td>{advocate.city}</td>
                 <td>{advocate.degree}</td>
                 <td>
