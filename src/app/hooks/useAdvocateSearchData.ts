@@ -1,13 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Advocate } from "../types";
 
+const DEBOUNCE_TIMEOUT = 300;
+
 export const useAdvocateSearchData = () => {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [count, setCount] = useState(0);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const clearExistingTimeout = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+  };
 
   const defaultParams = {
     offset: 10,
@@ -46,8 +55,7 @@ export const useAdvocateSearchData = () => {
     fetchData(params);
   };
 
-  const updateSearch = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm);
+  const fetchDataWithNewSearchParams = (newSearchTerm: string) => {
     const params = getParamsWithOverrides({
       page: 1,
       search: newSearchTerm,
@@ -55,8 +63,25 @@ export const useAdvocateSearchData = () => {
     fetchData(params);
   };
 
+  const updateSearch = (newSearchTerm: string) => {
+    setSearchTerm(newSearchTerm);
+    clearExistingTimeout();
+
+    // debounce only if there is a search term
+    // if we are clearing the search, we want to run that immediately
+    if (searchTerm) {
+      timeoutRef.current = setTimeout(() => {
+        fetchDataWithNewSearchParams(newSearchTerm);
+      }, DEBOUNCE_TIMEOUT);
+    } else {
+      fetchDataWithNewSearchParams(newSearchTerm);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+
+    return clearExistingTimeout;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
