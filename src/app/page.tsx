@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [advocates, setAdvocates] = useState([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     console.log("fetching advocates...");
@@ -17,19 +18,18 @@ export default function Home() {
   }, []);
 
   const onChange = (e) => {
-    const searchTerm = e.target.value;
-
-    document.getElementById("search-term").innerHTML = searchTerm;
+    const newSearchTermInput = e.target.value;
+    setSearchTerm(newSearchTermInput);
 
     console.log("filtering advocates...");
     const filteredAdvocates = advocates.filter((advocate) => {
       return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
+        advocate.firstName.includes(newSearchTermInput) ||
+        advocate.lastName.includes(newSearchTermInput) ||
+        advocate.city.includes(newSearchTermInput) ||
+        advocate.degree.includes(newSearchTermInput) ||
+        advocate.specialties.includes(newSearchTermInput) ||
+        advocate.yearsOfExperience.includes(newSearchTermInput)
       );
     });
 
@@ -49,9 +49,13 @@ export default function Home() {
       <div>
         <p>Search</p>
         <p>
-          Searching for: <span id="search-term"></span>
+          Searching for: <span id="search-term">{searchTerm}</span>
         </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
+        <input
+          style={{ border: "1px solid black" }}
+          value={searchTerm}
+          onChange={onChange}
+        />
         <button onClick={onClick}>Reset Search</button>
       </div>
       <br />
