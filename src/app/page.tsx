@@ -3,19 +3,26 @@
 import { ChangeEvent, useEffect, useState } from "react";
 
 import { Advocate } from "./types";
+import { Loading } from "./components/loading";
 
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     console.log("fetching advocates...");
     fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-      });
+      response
+        .json()
+        .then((jsonResponse) => {
+          setAdvocates(jsonResponse.data);
+          setFilteredAdvocates(jsonResponse.data);
+        })
+        // TODO: error handling
+        .finally(() => setIsLoading(false));
     });
   }, []);
 
@@ -39,9 +46,12 @@ export default function Home() {
   };
 
   const resetSearch = () => {
-    console.log(advocates);
-    setFilteredAdvocates(advocates);
-    setSearchTerm("");
+    // TODO: use a confirmation modal that matches the design system
+    // this causes DevTools to throw a warning. It can be safely ignored.
+    if (confirm("Are you sure you want to reset your search?")) {
+      setFilteredAdvocates(advocates);
+      setSearchTerm("");
+    }
   };
 
   return (
@@ -49,7 +59,7 @@ export default function Home() {
       <h1>Solace Advocates</h1>
       <br />
       <br />
-      <div>
+      <div className="mb-10">
         <p>Search</p>
         <p>
           Searching for: <span id="search-term">{searchTerm}</span>
@@ -61,40 +71,48 @@ export default function Home() {
         />
         <button onClick={resetSearch}>Reset Search</button>
       </div>
-      <br />
-      <br />
-      <table>
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>City</th>
-            <th>Degree</th>
-            <th>Specialties</th>
-            <th>Years of Experience</th>
-            <th>Phone Number</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAdvocates.map((advocate) => {
-            return (
-              <tr key={`advocate-${advocate.id}`}>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
-                <td>
-                  {advocate.specialties.map((s) => (
-                    <div key={`specialty-${s}`}>{s}</div>
-                  ))}
-                </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <table className="w-full table-auto">
+          <thead className="sticky top-0 bg-white z-10 shadow-md">
+            <tr>
+              <th>Name</th>
+              <th>City</th>
+              <th>Degree</th>
+              <th>Specialties</th>
+              <th>Years of Experience</th>
+              <th>Phone Number</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredAdvocates.map((advocate) => {
+              return (
+                <tr key={`advocate-${advocate.id}`} className="odd:bg-gray-100">
+                  <td>
+                    {advocate.firstName} {advocate.lastName}
+                  </td>
+                  <td>{advocate.city}</td>
+                  <td>{advocate.degree}</td>
+                  <td>
+                    <ul className="list-disc pl-16">
+                      {advocate.specialties.map((s) => (
+                        <li key={`specialty-${s}`}>{s}</li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td>{advocate.yearsOfExperience}</td>
+                  <td>
+                    {advocate.phoneNumber
+                      .toString(10)
+                      .replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
     </main>
   );
 }
